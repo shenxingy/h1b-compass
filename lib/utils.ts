@@ -1,17 +1,14 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Position } from "geojson";
 import { COLOR_STOPS } from "./constants";
-import type { MsaFeature, MsaWages, WageLevel } from "./types";
+import type { MsaFeature } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 // ─── Wage / Surplus ──────────────────────────────────────────────────────────
-
-export function computeSurplus(wages: MsaWages, wageLevel: WageLevel, salary: number): number {
-  return salary - wages[wageLevel];
-}
 
 export function getColor(surplus: number): string {
   for (const stop of COLOR_STOPS) {
@@ -22,9 +19,11 @@ export function getColor(surplus: number): string {
 
 // ─── MSA Name Parsing ────────────────────────────────────────────────────────
 
-/** Extract state abbreviation(s) from NAMELSAD, e.g. "San Jose-... CA" → "CA" */
+/** Extract state abbreviation(s) from NAMELSAD, e.g. "Amarillo, TX Metro Area" → "TX" */
 export function parseState(namelsad: string): string {
-  const match = namelsad.match(/,\s*([A-Z]{2}(?:-[A-Z]{2})*)$/);
+  // NAMELSAD format: "City, ST Metro Area" or "City, ST-ST2 Micro Area"
+  // State codes appear between the last comma and the type descriptor at end.
+  const match = namelsad.match(/,\s*([A-Z]{2}(?:-[A-Z]{2})*)\s+(?:Metro|Micro)\s+(?:Area|Division)$/);
   return match ? match[1] : "";
 }
 
@@ -56,20 +55,20 @@ export function getCentroid(feature: MsaFeature): [number, number] | null {
   const geom = feature.geometry;
   if (!geom) return null;
 
-  let coords: number[][][] = [];
+  let rings: Position[][] = [];
   if (geom.type === "Polygon") {
-    coords = [geom.coordinates[0]];
+    rings = [geom.coordinates[0]];
   } else if (geom.type === "MultiPolygon") {
-    coords = geom.coordinates.map((p: number[][][][]) => p[0]);
+    rings = geom.coordinates.map((poly) => poly[0]);
   } else {
     return null;
   }
 
   let sumLon = 0, sumLat = 0, count = 0;
-  for (const ring of coords) {
-    for (const [lon, lat] of ring) {
-      sumLon += lon;
-      sumLat += lat;
+  for (const ring of rings) {
+    for (const pos of ring) {
+      sumLon += pos[0];
+      sumLat += pos[1];
       count++;
     }
   }
