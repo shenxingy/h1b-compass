@@ -1,5 +1,7 @@
 // ─── Data Types ──────────────────────────────────────────────────────────────
 
+import type { Geometry } from "geojson";
+
 export type WageLevel = "L1" | "L2" | "L3" | "L4";
 
 export interface MsaWages {
@@ -22,8 +24,7 @@ export interface MsaFeature {
     NAMELSAD: string;
     LSAD: string;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  geometry: any;
+  geometry: Geometry;
 }
 
 export interface MsaGeoJSON {
