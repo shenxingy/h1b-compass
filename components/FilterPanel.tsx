@@ -23,12 +23,12 @@ interface Props {
 
 export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [localSalary, setLocalSalary] = useState(filters.salary);
   const [localRadius, setLocalRadius] = useState(filters.radiusMiles);
 
-  // Sync local radius when external state changes (URL navigation, reset, etc.)
-  useEffect(() => {
-    setLocalRadius(filters.radiusMiles);
-  }, [filters.radiusMiles]);
+  // Sync local values when external state changes (URL navigation, reset, etc.)
+  useEffect(() => { setLocalSalary(filters.salary); }, [filters.salary]);
+  useEffect(() => { setLocalRadius(filters.radiusMiles); }, [filters.radiusMiles]);
 
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
     onChange({ ...filters, [key]: value });
@@ -86,15 +86,16 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
         <div className="flex justify-between text-sm">
           <label className="font-medium text-gray-700">Your Salary</label>
           <span className="font-mono font-semibold text-blue-700">
-            {formatCurrency(filters.salary)}
+            {formatCurrency(localSalary)}
           </span>
         </div>
         <Slider
           min={60000}
           max={300000}
           step={5000}
-          value={[filters.salary]}
-          onValueChange={(vals) => set("salary", (vals as number[])[0])}
+          value={[localSalary]}
+          onValueChange={(vals) => setLocalSalary((vals as number[])[0])}
+          onValueCommitted={(vals) => set("salary", (vals as number[])[0])}
           className="w-full"
         />
         <div className="flex justify-between text-xs text-gray-400">
