@@ -108,25 +108,47 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="flex-shrink-0 bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4">
+      {/* Header */}
+      <header className="flex-shrink-0 bg-white border-b border-gray-200 px-4 md:px-6 py-2 md:py-3 flex items-center gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">H1B Compass</h1>
-          <p className="text-xs text-gray-500">Find your best worksite by prevailing wage</p>
+          <h1 className="text-base md:text-xl font-bold text-gray-900">H1B Compass</h1>
+          <p className="text-xs text-gray-500 hidden sm:block">Find your best worksite by prevailing wage</p>
         </div>
-        <div className="ml-auto text-xs text-gray-400">
+        <div className="ml-auto text-xs text-gray-400 hidden md:block">
           Data: DOL OFLC 7/2025–6/2026 · Official prevailing wages
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-80 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-100 p-4 flex flex-col gap-4">
+      {/* Body: map on top on mobile, sidebar on left on desktop */}
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+
+        {/* Map — shown first (top) on mobile, right side on desktop */}
+        <main className="h-[42vh] flex-shrink-0 md:h-auto md:flex-1 md:order-2 relative">
+          {!loading && !error && wages && geojson ? (
+            <Map
+              geojson={geojson}
+              wages={wages}
+              salary={filters.salary}
+              socCode={filters.socCode}
+              wageLevel={filters.wageLevel}
+              qualifyingOnly={filters.qualifyingOnly}
+              showDriveZone={filters.showDriveZone}
+              originLat={filters.originLat}
+              originLon={filters.originLon}
+              radiusMiles={filters.radiusMiles}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
+              {loading ? "Loading..." : error ? "Data error — check sidebar" : ""}
+            </div>
+          )}
+        </main>
+
+        {/* Sidebar — scrollable panel below map on mobile, fixed left column on desktop */}
+        <aside className="flex-1 md:flex-none md:w-80 md:order-1 overflow-y-auto bg-white border-t md:border-t-0 md:border-r border-gray-100 p-4 flex flex-col gap-4">
           {error ? (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
               <strong>Error loading data:</strong> {error}
-              <p className="mt-1 text-xs text-red-500">
-                Run <code>python scripts/fetch_bls.py</code> and{" "}
-                <code>python scripts/fetch_boundaries.py</code> first.
-              </p>
             </div>
           ) : loading ? (
             <div className="flex items-center justify-center h-24 text-gray-400 text-sm">
@@ -149,27 +171,6 @@ export default function HomePage() {
             />
           )}
         </aside>
-
-        <main className="flex-1 relative">
-          {!loading && !error && wages && geojson ? (
-            <Map
-              geojson={geojson}
-              wages={wages}
-              salary={filters.salary}
-              socCode={filters.socCode}
-              wageLevel={filters.wageLevel}
-              qualifyingOnly={filters.qualifyingOnly}
-              showDriveZone={filters.showDriveZone}
-              originLat={filters.originLat}
-              originLon={filters.originLon}
-              radiusMiles={filters.radiusMiles}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
-              {loading ? "Loading..." : error ? "Data error — check sidebar" : ""}
-            </div>
-          )}
-        </main>
       </div>
     </div>
   );

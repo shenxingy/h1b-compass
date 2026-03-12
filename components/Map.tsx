@@ -197,7 +197,7 @@ export function Map({
     <div
       ref={containerRef}
       className="w-full h-full rounded-xl overflow-hidden"
-      style={{ minHeight: "500px" }}
+      style={{ minHeight: "200px" }}
     />
   );
 }

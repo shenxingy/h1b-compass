@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ORIGIN_CITIES, SOC_CODES, WAGE_LEVEL_LABELS } from "@/lib/constants";
 import type { Filters, WageLevel } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
@@ -21,6 +22,8 @@ interface Props {
 }
 
 export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: Props) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
     onChange({ ...filters, [key]: value });
   }
@@ -32,19 +35,45 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
   }
 
   return (
-    <div className="flex flex-col gap-5 p-5 bg-white rounded-xl shadow-sm border border-gray-100">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-5 p-4 md:p-5 bg-white rounded-xl shadow-sm border border-gray-100">
+      {/* Header — mobile: tap to expand/collapse, desktop: always open */}
+      <button
+        className="flex items-center justify-between w-full text-left md:cursor-default"
+        onClick={() => setMobileOpen((o) => !o)}
+        aria-expanded={mobileOpen}
+      >
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Filters</h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50">
             {qualifyingCount} qualifying
           </Badge>
-          <Badge variant="outline" className="text-gray-500">
+          <Badge variant="outline" className="text-gray-500 hidden sm:inline-flex">
             {totalCount} total
           </Badge>
+          {/* Chevron: mobile only */}
+          <span className="md:hidden text-gray-400 text-xs ml-1">
+            {mobileOpen ? "▲" : "▼"}
+          </span>
         </div>
-      </div>
+      </button>
+
+      {/* Compact summary chips — mobile collapsed state only */}
+      {!mobileOpen && (
+        <div className="md:hidden flex flex-wrap gap-2 -mt-3">
+          <span className="text-xs bg-gray-100 rounded-full px-2.5 py-1 text-gray-600 font-mono">
+            {formatCurrency(filters.salary)}
+          </span>
+          <span className="text-xs bg-gray-100 rounded-full px-2.5 py-1 text-gray-600">
+            {SOC_CODES[filters.socCode]?.split(" ")[0]}
+          </span>
+          <span className="text-xs bg-gray-100 rounded-full px-2.5 py-1 text-gray-600">
+            {filters.wageLevel}
+          </span>
+        </div>
+      )}
+
+      {/* Full filter body — hidden on mobile when collapsed */}
+      <div className={`${mobileOpen ? "flex" : "hidden"} md:flex flex-col gap-5`}>
 
       {/* Salary Slider */}
       <div className="space-y-2">
@@ -195,6 +224,7 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
           </div>
         </div>
       </div>
+      </div> {/* end collapsible body */}
     </div>
   );
 }
