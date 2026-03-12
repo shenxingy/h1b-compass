@@ -1,36 +1,32 @@
 #!/usr/bin/env python3
 """
-Fetch BLS OEWS MSA-level wage data and produce wages.json.
+Fetch DOL OFLC official prevailing wages for H1B (7/2025 - 6/2026) and produce wages.json.
+
+Source: flag.dol.gov/wage-data/wage-data-downloads
+  OFLC_Wages_2025-26.zip → ALC_Export.csv  (official L1/L2/L3/L4, hourly)
+                          → Geography.csv   (area code → name mapping)
 
 Output: public/data/wages.json
   { msaCode: { socCode: { L1, L2, L3, L4, area_title, soc_title } } }
 
-Wage level approximation (DOL methodology):
-  L1 ≈ A_PCT10   (17th percentile)
-  L2 ≈ A_PCT25   (34th percentile)
-  L3 ≈ A_MEDIAN  (50th percentile)
-  L4 ≈ midpoint(A_MEDIAN, A_PCT75)  (~67th percentile)
-
-BLS OEWS 2024 MSA-level Excel:
-  https://www.bls.gov/oes/special.requests/oesm24ma.zip
+L1-L4 are annual wages (hourly × 2080). Area codes are 5-digit CBSA FIPS codes,
+same as the Census CBSAFP field in msas.geojson — no additional join needed.
 """
 
-import os
+import csv
+import io
 import json
 import zipfile
 import requests
-import io
 from pathlib import Path
-
-import pandas as pd
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
 OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "wages.json"
 
-BLS_URL = "https://www.bls.gov/oes/special.requests/oesm24ma.zip"
+OFLC_URL = "https://flag.dol.gov/sites/default/files/wages/OFLC_Wages_2025-26.zip"
 
-SOC_CODES = {
+SOC_CODES: dict[str, str] = {
     "15-1252": "Software Developer",
     "15-2051": "Data Scientist / AI Engineer",
     "15-1212": "Security Engineer",
@@ -45,122 +41,79 @@ SOC_CODES = {
     "15-1251": "Computer Programmer",
 }
 
-WAGE_COLS = ["A_PCT10", "A_PCT25", "A_MEDIAN", "A_PCT75"]
+HOURS_PER_YEAR = 2080  # DOL standard for hourly → annual conversion
 
 
-# ─── Helpers ─────────────────────────────────────────────────────────────────
+# ─── Main ─────────────────────────────────────────────────────────────────────
 
-def parse_wage(val) -> float | None:
-    """Convert BLS wage string to float. Returns None for '#', '*', or NaN."""
-    if pd.isna(val):
-        return None
-    s = str(val).strip().replace(",", "")
-    if s in ("#", "*", "**", ""):
-        return None
-    try:
-        return float(s)
-    except ValueError:
-        return None
-
-
-def compute_levels(row) -> dict | None:
-    p10 = parse_wage(row.get("A_PCT10"))
-    p25 = parse_wage(row.get("A_PCT25"))
-    med = parse_wage(row.get("A_MEDIAN"))
-    p75 = parse_wage(row.get("A_PCT75"))
-
-    # Need at least median
-    if med is None:
-        return None
-
-    l1 = p10 if p10 is not None else (med * 0.68)   # fallback estimate
-    l2 = p25 if p25 is not None else (med * 0.82)
-    l3 = med
-    l4 = ((med + p75) / 2) if p75 is not None else (med * 1.18)
-
-    return {
-        "L1": round(l1),
-        "L2": round(l2),
-        "L3": round(l3),
-        "L4": round(l4),
-    }
-
-
-# ─── Main ────────────────────────────────────────────────────────────────────
-
-def main():
-    print(f"Downloading BLS OEWS MSA data from {BLS_URL}...")
-    resp = requests.get(BLS_URL, timeout=120, headers={"User-Agent": "h1b-compass/1.0"})
+def main() -> None:
+    print(f"Downloading OFLC wage data from {OFLC_URL}...")
+    resp = requests.get(OFLC_URL, timeout=120, headers={"User-Agent": "h1b-compass/1.0"})
     resp.raise_for_status()
     print(f"Downloaded {len(resp.content) / 1024 / 1024:.1f} MB")
 
-    # The zip contains one MSA Excel file
     with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
-        names = zf.namelist()
-        print("Files in zip:", names)
-        # Find the main data file (MSA_M20XX_dl.xlsx or similar)
-        # Prefer the national MSA file (MSA_M20XX_dl.xlsx)
-        xlsx_name = next(
-            (n for n in names if n.endswith(".xlsx") and "MSA_M" in n),
-            None,
-        )
-        if not xlsx_name:
-            xlsx_name = next(
-                (n for n in names if n.endswith(".xlsx") and "M20" in n and "dl" in n.lower()),
-                None,
-            )
-        if not xlsx_name:
-            xlsx_name = next((n for n in names if n.endswith(".xlsx")), None)
-        if not xlsx_name:
-            raise ValueError(f"No xlsx found in zip: {names}")
-        print(f"Reading {xlsx_name}...")
-        with zf.open(xlsx_name) as f:
-            df = pd.read_excel(f, dtype=str)
+        # Load Geography.csv: area code → area name (deduplicated)
+        geo_file = next(n for n in zf.namelist() if n.endswith("Geography.csv"))
+        area_names: dict[str, str] = {}
+        with zf.open(geo_file) as f:
+            for row in csv.DictReader(io.TextIOWrapper(f, encoding="utf-8-sig")):
+                code = row["Area"].strip().zfill(5)
+                if code not in area_names:
+                    state = row.get("StateAb", "").strip()
+                    name = row.get("AreaName", "").strip()
+                    area_names[code] = f"{name}, {state}" if state else name
 
-    print(f"Loaded {len(df)} rows, columns: {list(df.columns)}")
+        print(f"Loaded {len(area_names)} geographic areas")
 
-    # Normalize column names (BLS uses mixed case)
-    df.columns = [c.strip().upper() for c in df.columns]
+        # Load ALC_Export.csv: official prevailing wages
+        alc_file = next(n for n in zf.namelist() if n.endswith("ALC_Export.csv"))
+        result: dict[str, dict[str, dict]] = {}
+        skipped = 0
 
-    # Required columns
-    area_col = next((c for c in df.columns if "AREA" in c and "CODE" in c), "AREA")
-    title_col = next((c for c in df.columns if "AREA" in c and "TITLE" in c), "AREA_TITLE")
-    occ_col = next((c for c in df.columns if "OCC_CODE" in c or "OCC CODE" in c), "OCC_CODE")
-    occ_title_col = next((c for c in df.columns if "OCC_TITLE" in c), "OCC_TITLE")
+        with zf.open(alc_file) as f:
+            for row in csv.DictReader(io.TextIOWrapper(f, encoding="utf-8-sig")):
+                soc = row["SocCode"].strip()
+                if soc not in SOC_CODES:
+                    continue
 
-    # Filter to tech SOC codes
-    target_socs = set(SOC_CODES.keys())
-    df_tech = df[df[occ_col].isin(target_socs)].copy()
-    print(f"Filtered to {len(df_tech)} tech rows across {df_tech[area_col].nunique()} MSAs")
+                area = row["Area"].strip().zfill(5)
 
-    # Build output dict
-    result = {}
-    for _, row in df_tech.iterrows():
-        msa_code = str(row[area_col]).strip().zfill(5)
-        soc_code = str(row[occ_col]).strip()
-        area_title = str(row.get(title_col, "")).strip()
-        soc_title = SOC_CODES.get(soc_code, str(row.get(occ_title_col, soc_code)).strip())
+                try:
+                    l1 = round(float(row["Level1"]) * HOURS_PER_YEAR)
+                    l2 = round(float(row["Level2"]) * HOURS_PER_YEAR)
+                    l3 = round(float(row["Level3"]) * HOURS_PER_YEAR)
+                    l4 = round(float(row["Level4"]) * HOURS_PER_YEAR)
+                except (ValueError, KeyError):
+                    skipped += 1
+                    continue
 
-        levels = compute_levels(row)
-        if levels is None:
-            continue
+                if area not in result:
+                    result[area] = {}
 
-        if msa_code not in result:
-            result[msa_code] = {}
+                result[area][soc] = {
+                    "L1": l1,
+                    "L2": l2,
+                    "L3": l3,
+                    "L4": l4,
+                    "area_title": area_names.get(area, area),
+                    "soc_title": SOC_CODES[soc],
+                }
 
-        result[msa_code][soc_code] = {
-            **levels,
-            "area_title": area_title,
-            "soc_title": soc_title,
-        }
+    print(f"Processed {sum(len(v) for v in result.values())} entries across {len(result)} MSAs")
+    if skipped:
+        print(f"Skipped {skipped} rows with invalid wage data")
 
-    print(f"Output: {len(result)} MSAs with wage data")
-
-    # Save
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w") as f:
         json.dump(result, f, separators=(",", ":"))
-    print(f"Saved to {OUTPUT_PATH}")
+    print(f"Saved → {OUTPUT_PATH}")
+
+    # Spot-check SF
+    sf = result.get("41860", {}).get("15-1252")
+    if sf:
+        print(f"\nSpot-check SF Software Developer (7/2025-6/2026):")
+        print(f"  L1=${sf['L1']:,}  L2=${sf['L2']:,}  L3=${sf['L3']:,}  L4=${sf['L4']:,}")
 
 
 if __name__ == "__main__":

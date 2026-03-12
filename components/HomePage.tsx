@@ -114,7 +114,7 @@ export default function HomePage() {
           <p className="text-xs text-gray-500">Find your best worksite by prevailing wage</p>
         </div>
         <div className="ml-auto text-xs text-gray-400">
-          Data: BLS OEWS 2024 · DOL wage levels
+          Data: DOL OFLC 7/2025–6/2026 · Official prevailing wages
         </div>
       </header>
 
