@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ORIGIN_CITIES, SOC_CODES, WAGE_LEVEL_LABELS } from "@/lib/constants";
 import type { Filters, WageLevel } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
@@ -23,6 +23,12 @@ interface Props {
 
 export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [localRadius, setLocalRadius] = useState(filters.radiusMiles);
+
+  // Sync local radius when external state changes (URL navigation, reset, etc.)
+  useEffect(() => {
+    setLocalRadius(filters.radiusMiles);
+  }, [filters.radiusMiles]);
 
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
     onChange({ ...filters, [key]: value });
@@ -178,15 +184,16 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
               <div className="flex justify-between text-xs">
                 <label className="font-medium text-gray-600">Max distance</label>
                 <span className="font-mono font-semibold text-blue-600">
-                  {filters.radiusMiles} mi
+                  {localRadius} mi
                 </span>
               </div>
               <Slider
                 min={50}
                 max={600}
                 step={25}
-                value={[filters.radiusMiles]}
-                onValueChange={(vals) => set("radiusMiles", (vals as number[])[0])}
+                value={[localRadius]}
+                onValueChange={(vals) => setLocalRadius((vals as number[])[0])}
+                onValueCommitted={(vals) => set("radiusMiles", (vals as number[])[0])}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-gray-400">
