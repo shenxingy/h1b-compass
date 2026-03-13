@@ -188,6 +188,7 @@ export function Map({
       dashArray: "8 5",
       fillColor: "#3b82f6",
       fillOpacity: 0.04,
+      interactive: false,
     });
     circle.addTo(mapRef.current);
     circleLayerRef.current = circle;
