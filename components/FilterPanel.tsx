@@ -30,6 +30,11 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
   useEffect(() => { setLocalSalary(filters.salary); }, [filters.salary]);
   useEffect(() => { setLocalRadius(filters.radiusMiles); }, [filters.radiusMiles]);
 
+  // base-ui Slider passes a single number for single-thumb drag, number[] for keyboard
+  function sliderVal(v: number | readonly number[]): number {
+    return Array.isArray(v) ? (v as number[])[0] : v as number;
+  }
+
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
     onChange({ ...filters, [key]: value });
   }
@@ -94,8 +99,8 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
           max={300000}
           step={5000}
           value={[localSalary]}
-          onValueChange={(vals) => setLocalSalary((vals as number[])[0])}
-          onValueCommitted={(vals) => set("salary", (vals as number[])[0])}
+          onValueChange={(vals) => setLocalSalary(sliderVal(vals as number | number[]))}
+          onValueCommitted={(vals) => set("salary", sliderVal(vals as number | number[]))}
           className="w-full"
         />
         <div className="flex justify-between text-xs text-gray-400">
@@ -193,8 +198,8 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
                 max={600}
                 step={25}
                 value={[localRadius]}
-                onValueChange={(vals) => setLocalRadius((vals as number[])[0])}
-                onValueCommitted={(vals) => set("radiusMiles", (vals as number[])[0])}
+                onValueChange={(vals) => setLocalRadius(sliderVal(vals as number | number[]))}
+                onValueCommitted={(vals) => set("radiusMiles", sliderVal(vals as number | number[]))}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-gray-400">
