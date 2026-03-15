@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type L from "leaflet";
 import type { Circle, Map as LeafletMap, GeoJSON as LeafletGeoJSON } from "leaflet";
 import type { MsaGeoJSON, MsaWages, WagesData, WageLevel } from "@/lib/types";
 import { getColor, isWithinRadius, formatCurrency, formatSurplus } from "@/lib/utils";
@@ -35,6 +36,7 @@ export function Map({
   const mapRef = useRef<LeafletMap | null>(null);
   const layerRef = useRef<LeafletGeoJSON | null>(null);
   const circleLayerRef = useRef<Circle | null>(null);
+  const activeFeatureRef = useRef<L.Path | null>(null);
 
   // Initialize map once, destroy on unmount
   useEffect(() => {
@@ -58,6 +60,19 @@ export function Map({
         attribution: "© OpenStreetMap contributors",
         maxZoom: 19,
       }).addTo(map);
+
+      // Create a pane below the overlayPane so the drive-zone circle
+      // is always rendered under the GeoJSON choropleth layer.
+      map.createPane("driveZonePane");
+      map.getPane("driveZonePane")!.style.zIndex = "350"; // overlayPane = 400
+
+      // Tap on empty map area deselects the active feature (touch devices)
+      map.on("click", () => {
+        if (activeFeatureRef.current && layerRef.current) {
+          layerRef.current.resetStyle(activeFeatureRef.current);
+          activeFeatureRef.current = null;
+        }
+      });
 
       mapRef.current = map;
       renderLayer();
@@ -96,6 +111,7 @@ export function Map({
       layerRef.current.remove();
       layerRef.current = null;
     }
+    activeFeatureRef.current = null;
 
     const layer = L.geoJSON(geojson as Parameters<typeof L.geoJSON>[0], {
       style: (feature) => {
@@ -136,31 +152,36 @@ export function Map({
         const name = feature.properties?.NAMELSAD ?? msaCode;
         const socWages: MsaWages | undefined = wages[msaCode]?.[socCode];
 
-        if (!socWages) {
-          featureLayer.bindTooltip(`<strong>${name}</strong><br><em>No data</em>`, {
-            sticky: true,
-          });
-          return;
-        }
+        const tooltipContent = !socWages
+          ? `<strong>${name}</strong><br><em>No data</em>`
+          : (() => {
+              const prevailing = socWages[wageLevel];
+              const surplus = salary - prevailing;
+              return `<div style="font-size:13px;line-height:1.6">
+                <strong>${name}</strong><br>
+                Prevailing: <strong>${formatCurrency(prevailing)}</strong><br>
+                Your salary: ${formatCurrency(salary)}<br>
+                Surplus: <strong style="color:${getColor(surplus)}">${formatSurplus(surplus)}</strong>
+              </div>`;
+            })();
 
-        const prevailing = socWages[wageLevel];
-        const surplus = salary - prevailing;
+        featureLayer.bindTooltip(tooltipContent, { sticky: true });
 
-        featureLayer.bindTooltip(
-          `<div style="font-size:13px;line-height:1.6">
-            <strong>${name}</strong><br>
-            Prevailing: <strong>${formatCurrency(prevailing)}</strong><br>
-            Your salary: ${formatCurrency(salary)}<br>
-            Surplus: <strong style="color:${getColor(surplus)}">${formatSurplus(surplus)}</strong>
-          </div>`,
-          { sticky: true },
-        );
-
+        // Desktop: mouseover/mouseout for hover highlight
         featureLayer.on("mouseover", function (this: L.Path) {
           this.setStyle({ weight: 2, color: "#1d4ed8" });
         });
         featureLayer.on("mouseout", function () {
           layer.resetStyle(featureLayer);
+        });
+
+        // Touch: tap to highlight + show tooltip, tap elsewhere to deselect
+        featureLayer.on("click", function (this: L.Path) {
+          if (activeFeatureRef.current && activeFeatureRef.current !== this) {
+            layer.resetStyle(activeFeatureRef.current);
+          }
+          this.setStyle({ weight: 2, color: "#1d4ed8" });
+          activeFeatureRef.current = this;
         });
       },
     });
@@ -189,6 +210,7 @@ export function Map({
       fillColor: "#3b82f6",
       fillOpacity: 0.04,
       interactive: false,
+      pane: "driveZonePane",
     });
     circle.addTo(mapRef.current);
     circleLayerRef.current = circle;
