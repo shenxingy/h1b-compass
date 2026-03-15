@@ -70,15 +70,15 @@ export function ResultsList({ results, salary, showDriveZone }: Props) {
                 key={r.msaCode}
                 className="border-t border-gray-50 hover:bg-gray-50 transition-colors"
               >
-                <td className="px-3 py-2">
-                  <div className="font-medium text-gray-800 leading-tight">{r.name}</div>
+                <td className="px-3 py-2 max-w-[140px] sm:max-w-none">
+                  <div className="font-medium text-gray-800 leading-tight truncate">{r.name}</div>
                   <div className="text-xs text-gray-400">{r.state}</div>
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-gray-700">
+                <td className="px-3 py-2 text-right font-mono text-gray-700 whitespace-nowrap">
                   {formatCurrency(r.prevailingWage)}
                 </td>
                 <td
-                  className="px-3 py-2 text-right font-mono font-semibold"
+                  className="px-3 py-2 text-right font-mono font-semibold whitespace-nowrap"
                   style={{ color: getColor(r.surplus) }}
                 >
                   {formatSurplus(r.surplus)}
