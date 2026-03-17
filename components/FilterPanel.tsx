@@ -112,7 +112,7 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
       {/* SOC Code */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-gray-700">Job Category</label>
-        <Select value={filters.socCode} onValueChange={(v) => v && set("socCode", v)}>
+        <Select value={filters.socCode} onValueChange={(v) => v && set("socCode", v)} modal={false}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
@@ -132,6 +132,7 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
         <Select
           value={filters.wageLevel}
           onValueChange={(v) => v && set("wageLevel", v as WageLevel)}
+          modal={false}
         >
           <SelectTrigger className="w-full">
             <SelectValue />
@@ -171,7 +172,7 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
             {/* Origin city */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-600">Origin city</label>
-              <Select value={filters.originName} onValueChange={(v) => v && setOriginCity(v)}>
+              <Select value={filters.originName} onValueChange={(v) => v && setOriginCity(v)} modal={false}>
                 <SelectTrigger className="w-full h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
