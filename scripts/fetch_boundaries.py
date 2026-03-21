@@ -41,7 +41,6 @@ def check_fiona():
 def convert_with_fiona(shp_bytes: bytes) -> dict:
     import fiona
     import fiona.io
-    import json
 
     with fiona.io.MemoryFile(shp_bytes) as memfile:
         with memfile.open() as src:
@@ -63,9 +62,9 @@ def convert_with_fiona(shp_bytes: bytes) -> dict:
     return {"type": "FeatureCollection", "features": features}
 
 
-def convert_with_pyshp(shp_content: bytes, dbf_content: bytes, prj_content: bytes | None) -> dict:
+def convert_with_pyshp(shp_content: bytes, dbf_content: bytes, _prj_content: bytes | None) -> dict:
+    # prj not passed to Reader — Census shapefiles use WGS84 matching GeoJSON natively
     import shapefile
-    import io
 
     sf = shapefile.Reader(
         shp=io.BytesIO(shp_content),

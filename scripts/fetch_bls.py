@@ -26,6 +26,7 @@ OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "wages.json"
 
 OFLC_URL = "https://flag.dol.gov/sites/default/files/wages/OFLC_Wages_2025-26.zip"
 
+# Must stay in sync with lib/constants.ts SOC_CODES
 SOC_CODES: dict[str, str] = {
     "15-1252": "Software Developer",
     "15-2051": "Data Scientist / AI Engineer",
