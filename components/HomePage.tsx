@@ -107,7 +107,7 @@ export default function HomePage() {
   const qualifyingCount = allResults.filter((r) => r.surplus >= 0).length;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-dvh bg-gray-50">
       {/* Header */}
       <header className="flex-shrink-0 bg-white border-b border-gray-200 px-4 md:px-6 py-2 md:py-3 flex items-center gap-3">
         <div>
@@ -123,7 +123,7 @@ export default function HomePage() {
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
 
         {/* Map — shown first (top) on mobile, right side on desktop */}
-        <main className="h-[42vh] flex-shrink-0 md:h-auto md:flex-1 md:order-2 relative">
+        <main className="h-[42dvh] flex-shrink-0 md:h-auto md:flex-1 md:order-2 relative">
           {!loading && !error && wages && geojson ? (
             <Map
               geojson={geojson}
