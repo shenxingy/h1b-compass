@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ORIGIN_CITIES, SOC_CODES, WAGE_LEVEL_LABELS } from "@/lib/constants";
 import type { Filters, WageLevel } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
@@ -26,9 +26,19 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
   const [localSalary, setLocalSalary] = useState(filters.salary);
   const [localRadius, setLocalRadius] = useState(filters.radiusMiles);
 
-  // Sync local values when external state changes (URL navigation, reset, etc.)
-  useEffect(() => { setLocalSalary(filters.salary); }, [filters.salary]);
-  useEffect(() => { setLocalRadius(filters.radiusMiles); }, [filters.radiusMiles]);
+  // Track last-seen parent values so we can reset local state when they change
+  // externally (URL navigation, reset). Using setState-during-render avoids the
+  // extra commit cycle of useEffect and satisfies react-hooks/set-state-in-effect.
+  const [prevSalary, setPrevSalary] = useState(filters.salary);
+  const [prevRadius, setPrevRadius] = useState(filters.radiusMiles);
+  if (filters.salary !== prevSalary) {
+    setPrevSalary(filters.salary);
+    setLocalSalary(filters.salary);
+  }
+  if (filters.radiusMiles !== prevRadius) {
+    setPrevRadius(filters.radiusMiles);
+    setLocalRadius(filters.radiusMiles);
+  }
 
   // base-ui Slider passes a single number for single-thumb drag, number[] for keyboard
   function sliderVal(v: number | readonly number[]): number {
