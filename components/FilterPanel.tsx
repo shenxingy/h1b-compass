@@ -94,7 +94,7 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
       )}
 
       {/* Full filter body — hidden on mobile when collapsed */}
-      <div className={`${mobileOpen ? "flex" : "hidden"} md:flex flex-col gap-5`}>
+      <div className={`flex flex-col gap-5${mobileOpen ? "" : " max-h-0 overflow-hidden md:max-h-none"}`}>
 
       {/* Salary Slider */}
       <div className="space-y-2">
