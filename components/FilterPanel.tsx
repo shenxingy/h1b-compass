@@ -260,11 +260,11 @@ function Toggle({
 }) {
   const activeColor = color === "green" ? "bg-green-600" : "bg-blue-600";
   return (
-    <label className="flex items-start gap-3 cursor-pointer select-none">
+    // onClick on label makes the full row tappable (not just the 20px switch)
+    <label className="flex items-start gap-3 cursor-pointer select-none" onClick={() => onChange(!checked)}>
       <button
         role="switch"
         aria-checked={checked}
-        onClick={() => onChange(!checked)}
         className={`mt-0.5 relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 ${
           checked ? activeColor : "bg-gray-200"
         }`}

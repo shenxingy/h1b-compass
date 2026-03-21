@@ -52,7 +52,7 @@ export function ResultsList({ results, salary, showDriveZone }: Props) {
         </Button>
       </div>
 
-      <div className="overflow-auto max-h-[500px] rounded-lg border border-gray-100">
+      <div className="overflow-auto md:max-h-[500px] rounded-lg border border-gray-100">
         <table className="w-full text-sm border-collapse">
           <thead className="sticky top-0 bg-gray-50 z-10">
             <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
