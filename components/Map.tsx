@@ -172,7 +172,10 @@ export function Map({
           this.setStyle({ weight: 2, color: "#1d4ed8" });
         });
         featureLayer.on("mouseout", function () {
-          layer.resetStyle(featureLayer);
+          // Don't reset style if this feature is tap-selected (touch devices)
+          if (activeFeatureRef.current !== featureLayer) {
+            layer.resetStyle(featureLayer);
+          }
         });
 
         // Touch: tap to highlight + show tooltip, tap elsewhere to deselect
