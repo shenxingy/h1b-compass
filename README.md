@@ -10,7 +10,14 @@ Enter your salary, pick your job category and wage level, and instantly see whic
 
 - **Wages**: DOL OFLC prevailing wage database (July 2025 – June 2026)
 - **Boundaries**: US Census CBSA GeoJSON
-- Regenerate with `scripts/fetch_bls.py` and `scripts/fetch_boundaries.py`
+
+Data files are not committed (large generated outputs). Generate them before running the dev server:
+
+```bash
+pip install requests        # fiona or pyshp recommended for boundaries
+python scripts/fetch_bls.py
+python scripts/fetch_boundaries.py
+```
 
 ## Dev
 
