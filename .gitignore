@@ -43,3 +43,11 @@ next-env.d.ts
 # python
 __pycache__/
 *.pyc
+
+# generated data (large; regenerate with scripts/fetch_bls.py + scripts/fetch_boundaries.py)
+/public/data/wages.json
+/public/data/msas.geojson
+/public/data/isochrone_5h_sf.geojson
+
+# unused default Next.js assets
+/public/next.svg
