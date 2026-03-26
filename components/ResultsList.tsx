@@ -29,7 +29,9 @@ export function ResultsList({ results, salary, showDriveZone }: Props) {
     const a = document.createElement("a");
     a.href = url;
     a.download = `h1b-msas-${salary}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
