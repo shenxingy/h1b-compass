@@ -38,11 +38,11 @@ def check_fiona():
     return None
 
 
-def convert_with_fiona(shp_bytes: bytes) -> dict:
+def convert_with_fiona(zip_bytes: bytes) -> dict:
     import fiona
     import fiona.io
 
-    with fiona.io.MemoryFile(shp_bytes) as memfile:
+    with fiona.io.MemoryFile(zip_bytes) as memfile:
         with memfile.open() as src:
             features = []
             for feat in src:
@@ -115,10 +115,9 @@ def main():
     print(f"Using: {lib or 'none (will try ogr2ogr)'}")
 
     if lib == "fiona":
-        # Fiona needs the full zip context; re-read the zip bytes
+        # Fiona reads directly from the zip bytes already in memory
         print("Converting with fiona...")
-        resp2 = requests.get(CBSA_URL, timeout=120, headers={"User-Agent": "h1b-compass/1.0"})
-        geojson = convert_with_fiona(resp2.content)
+        geojson = convert_with_fiona(resp.content)
     elif lib == "pyshp":
         print("Converting with pyshp...")
         geojson = convert_with_pyshp(shp_bytes, dbf_bytes, prj_bytes)
@@ -126,8 +125,8 @@ def main():
         # Try ogr2ogr (GDAL)
         import tempfile
         print("Trying ogr2ogr...")
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
+        with tempfile.TemporaryDirectory() as _tmpdir:
+            tmpdir = Path(_tmpdir)
             shp_path = tmpdir / shp_name
             shp_path.write_bytes(shp_bytes)
             if dbf_bytes:
