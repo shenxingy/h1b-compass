@@ -34,11 +34,20 @@ scripts/          Python data pipeline (fetch_bls.py, fetch_boundaries.py)
 
 ## Commands
 ```bash
-npm run dev      # Dev server (localhost:3000)
+npm run dev      # Dev server — MUST use -H 127.0.0.1 (port-allocation policy)
 npm run build    # Production build
 npm run lint     # ESLint
 npx tsc --noEmit # Type check
 ```
+
+## Port Binding Rule
+
+**Dev server MUST bind to `127.0.0.1` — never `0.0.0.0`**
+
+- Use `npm run dev` which already includes `-H 127.0.0.1 -p 3004`
+- If starting manually: `npx next dev -H 127.0.0.1 -p 3004`
+- Access via VPN: https://h1b-compass.internal.scam.ai
+- This is enforced by server-infra port-allocation policy
 
 ## Key Patterns
 
