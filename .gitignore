@@ -48,6 +48,7 @@ __pycache__/
 /public/data/wages.json
 /public/data/msas.geojson
 /public/data/isochrone_5h_sf.geojson
+/public/data/rent.json
 
 # unused default Next.js assets
 /public/next.svg
