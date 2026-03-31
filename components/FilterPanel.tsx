@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { ORIGIN_CITIES, SOC_CODES, WAGE_LEVEL_LABELS } from "@/lib/constants";
-import type { Filters, WageLevel } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
+import type { BedroomCount, Filters, WageLevel } from "@/lib/types";
+import { bedroomLabel, formatCurrency } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -19,9 +19,10 @@ interface Props {
   onChange: (f: Filters) => void;
   qualifyingCount: number;
   totalCount: number;
+  rentLoading?: boolean;
 }
 
-export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: Props) {
+export function FilterPanel({ filters, onChange, qualifyingCount, totalCount, rentLoading }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [localSalary, setLocalSalary] = useState(filters.salary);
   const [localRadius, setLocalRadius] = useState(filters.radiusMiles);
@@ -218,6 +219,39 @@ export function FilterPanel({ filters, onChange, qualifyingCount, totalCount }: 
                 <span>600 mi</span>
               </div>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* ─── Rent Layer ─────────────────────────────── */}
+      <div className="pt-1 border-t border-gray-100">
+        <Toggle
+          checked={filters.showRentLayer}
+          onChange={(v) => set("showRentLayer", v)}
+          label="Rent layer"
+          hint={rentLoading ? "Loading rent data..." : "HUD FY2026 Fair Market Rent (2BR)"}
+          color="blue"
+        />
+
+        {filters.showRentLayer && (
+          <div className="mt-3 ml-1 space-y-1.5">
+            <label className="text-xs font-medium text-gray-600">Bedroom count</label>
+            <Select
+              value={String(filters.bedroomCount)}
+              onValueChange={(v) => v && set("bedroomCount", Number(v) as BedroomCount)}
+              modal={false}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {([0, 1, 2, 3, 4] as BedroomCount[]).map((br) => (
+                  <SelectItem key={br} value={String(br)}>
+                    {bedroomLabel(br)} ({br === 0 ? "Studio" : `${br}-bedroom`})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
       </div>

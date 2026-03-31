@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Position } from "geojson";
 import { COLOR_STOPS } from "./constants";
-import type { MsaFeature } from "./types";
+import type { MsaFeature, MsaRent, BedroomCount } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -100,4 +100,33 @@ export function formatCurrency(n: number): string {
 export function formatSurplus(n: number): string {
   const sign = n >= 0 ? "+" : "";
   return sign + formatCurrency(n);
+}
+
+// ─── Rent FMR Colors ─────────────────────────────────────────────────────────
+
+/** 2BR FMR tiers → color (affordable = green, expensive = red) */
+const RENT_STOPS = [
+  { threshold: 4000,  color: "#dc2626" }, // red-600 — very expensive
+  { threshold: 2500,  color: "#ea580c" }, // orange-600
+  { threshold: 1500,  color: "#ca8a04" }, // yellow-600
+  { threshold: 1000,  color: "#65a30d" }, // lime-600 — affordable
+  { threshold: -Infinity, color: "#16a34a" }, // green-600 — very affordable
+] as const;
+
+export function getRentColor(fmr: number): string {
+  for (const stop of RENT_STOPS) {
+    if (fmr >= stop.threshold) return stop.color;
+  }
+  return RENT_STOPS[RENT_STOPS.length - 1].color;
+}
+
+/** Get FMR value from rent record for the given bedroom count. */
+export function getFmr(rent: MsaRent | null, bedroom: BedroomCount): number | undefined {
+  if (!rent) return undefined;
+  return rent[`fmr_${bedroom}` as keyof MsaRent] as number | undefined;
+}
+
+/** Human-readable label for a bedroom count: 0="Studio", 1="1BR", etc. */
+export function bedroomLabel(br: BedroomCount): string {
+  return br === 0 ? "Studio" : `${br}BR`;
 }

@@ -6,9 +6,10 @@ import { useMemo } from "react";
 import { FilterPanel } from "@/components/FilterPanel";
 import { ResultsList } from "@/components/ResultsList";
 import { useWageData } from "@/hooks/useWageData";
+import { useRentData } from "@/hooks/useRentData";
 import { DEFAULT_ORIGIN, DEFAULT_RADIUS_MILES, ORIGIN_CITIES } from "@/lib/constants";
-import type { Filters, MsaResult, WageLevel } from "@/lib/types";
-import { haversineDistance, getCentroid, parseState, shortName } from "@/lib/utils";
+import type { BedroomCount, Filters, MsaResult, WageLevel } from "@/lib/types";
+import { getFmr, haversineDistance, getCentroid, parseState, shortName } from "@/lib/utils";
 
 const Map = dynamic(() => import("@/components/Map").then((m) => m.Map), {
   ssr: false,
@@ -29,6 +30,8 @@ const queryParams = {
   level:   parseAsString.withDefault("L2"),
   q:       parseAsBoolean.withDefault(false),
   drive:   parseAsBoolean.withDefault(false),
+  rent:    parseAsBoolean.withDefault(false),
+  br:      parseAsInteger.withDefault(2),
   radius:  parseAsInteger.withDefault(DEFAULT_RADIUS_MILES),
   origin:  parseAsString.withDefault(DEFAULT_ORIGIN),
   olat:    parseAsFloat.withDefault(defaultCoords[0]),
@@ -40,6 +43,7 @@ const queryParams = {
 export default function HomePage() {
   const [params, setParams] = useQueryStates(queryParams, { shallow: true });
   const { wages, geojson, loading, error } = useWageData();
+  const { rent, loading: rentLoading } = useRentData();
 
   const filters: Filters = {
     salary:       params.salary,
@@ -47,6 +51,8 @@ export default function HomePage() {
     wageLevel:    params.level as WageLevel,
     qualifyingOnly: params.q,
     showDriveZone:  params.drive,
+    showRentLayer:  params.rent,
+    bedroomCount: (Math.max(0, Math.min(4, params.br ?? 2)) as BedroomCount),
     radiusMiles:  params.radius,
     originName:   params.origin,
     originLat:    params.olat,
@@ -60,6 +66,8 @@ export default function HomePage() {
       level:   f.wageLevel,
       q:       f.qualifyingOnly,
       drive:   f.showDriveZone,
+      rent:    f.showRentLayer,
+      br:      f.bedroomCount,
       radius:  f.radiusMiles,
       origin:  f.originName,
       olat:    f.originLat,
@@ -83,6 +91,9 @@ export default function HomePage() {
         ? haversineDistance(centroid[0], centroid[1], filters.originLat, filters.originLon)
         : Infinity;
 
+      const rentEntry = rent?.[msaCode] ?? null;
+      const fmr = getFmr(rentEntry, filters.bedroomCount);
+
       return [{
         msaCode,
         name:           shortName(feature.properties.NAME),
@@ -91,9 +102,10 @@ export default function HomePage() {
         surplus,
         distanceMiles,
         withinDriveZone: distanceMiles <= filters.radiusMiles,
+        ...(filters.showRentLayer && fmr != null ? { fmr } : {}),
       }];
     });
-  }, [wages, geojson, filters.socCode, filters.wageLevel, filters.salary, filters.originLat, filters.originLon, filters.radiusMiles]);
+  }, [wages, geojson, rent, filters.socCode, filters.wageLevel, filters.salary, filters.originLat, filters.originLon, filters.radiusMiles, filters.showRentLayer, filters.bedroomCount]);
 
   // Apply stacked filters for the results list
   const displayResults = useMemo(() => {
@@ -128,11 +140,14 @@ export default function HomePage() {
             <Map
               geojson={geojson}
               wages={wages}
+              rent={rent}
               salary={filters.salary}
               socCode={filters.socCode}
               wageLevel={filters.wageLevel}
               qualifyingOnly={filters.qualifyingOnly}
               showDriveZone={filters.showDriveZone}
+              showRentLayer={filters.showRentLayer}
+              bedroomCount={filters.bedroomCount}
               originLat={filters.originLat}
               originLon={filters.originLon}
               radiusMiles={filters.radiusMiles}
@@ -160,6 +175,7 @@ export default function HomePage() {
               onChange={handleFiltersChange}
               qualifyingCount={qualifyingCount}
               totalCount={allResults.length}
+              rentLoading={rentLoading}
             />
           )}
 
@@ -168,6 +184,8 @@ export default function HomePage() {
               results={displayResults}
               salary={filters.salary}
               showDriveZone={filters.showDriveZone}
+              showRentLayer={filters.showRentLayer}
+              bedroomCount={filters.bedroomCount}
             />
           )}
         </aside>

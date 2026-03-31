@@ -1,4 +1,4 @@
-// ─── Data Types ──────────────────────────────────────────────────────────────
+// ─── Section Name ───
 
 import type { Geometry } from "geojson";
 
@@ -15,6 +15,20 @@ export interface MsaWages {
 
 /** wages.json shape: { msaCode: { socCode: MsaWages } } */
 export type WagesData = Record<string, Record<string, MsaWages>>;
+
+/** rent.json shape: { cbsaCode: { area_name, fmr_0–fmr_4, metro } } */
+export interface MsaRent {
+  area_name: string;
+  fmr_0: number; // Fair Market Rent for Studio/0BR
+  fmr_1: number; // 1BR
+  fmr_2: number; // 2BR
+  fmr_3: number; // 3BR
+  fmr_4: number; // 4BR
+  metro: number; // 1 = metro, 0 = non-metro
+}
+
+export type BedroomCount = 0 | 1 | 2 | 3 | 4;
+export type RentData = Record<string, MsaRent>;
 
 export interface MsaFeature {
   type: "Feature";
@@ -40,6 +54,8 @@ export interface Filters {
   wageLevel: WageLevel;
   qualifyingOnly: boolean;
   showDriveZone: boolean;
+  showRentLayer: boolean;
+  bedroomCount: BedroomCount;
   radiusMiles: number;
   originName: string;
   originLat: number;
@@ -54,4 +70,5 @@ export interface MsaResult {
   surplus: number;
   distanceMiles: number;
   withinDriveZone: boolean;
+  fmr?: number; // Fair Market Rent for selected bedroom type when rent layer is active
 }

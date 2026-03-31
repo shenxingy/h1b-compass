@@ -1,34 +1,56 @@
 "use client";
 
-import type { MsaResult } from "@/lib/types";
-import { formatCurrency, formatSurplus, getColor } from "@/lib/utils";
+import type { BedroomCount, MsaResult } from "@/lib/types";
+import { bedroomLabel, formatCurrency, formatSurplus, getColor } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface Props {
   results: MsaResult[];   // pre-filtered by HomePage
   salary: number;
   showDriveZone: boolean;
+  showRentLayer: boolean;
+  bedroomCount: BedroomCount;
 }
 
-export function ResultsList({ results, salary, showDriveZone }: Props) {
-  const sorted = [...results].sort((a, b) => b.surplus - a.surplus);
+export function ResultsList({ results, salary, showDriveZone, showRentLayer, bedroomCount }: Props) {
+  const brLabel = bedroomLabel(bedroomCount);
+
+  const sorted = [...results].sort((a, b) => {
+    if (showRentLayer) {
+      return (b.fmr ?? 0) - (a.fmr ?? 0); // most expensive rent first
+    }
+    return b.surplus - a.surplus;
+  });
 
   function exportCSV() {
-    const headers = ["MSA Name", "State", "Prevailing Wage", "Surplus", "Distance (mi)", "Within Drive Zone"];
-    const rows = sorted.map((r) => [
-      `"${r.name}"`,
-      r.state,
-      r.prevailingWage,
-      r.surplus,
-      Math.round(r.distanceMiles),
-      r.withinDriveZone ? "Yes" : "No",
-    ]);
+    const headers = showRentLayer
+      ? ["MSA Name", "State", `${brLabel} FMR ($/mo)`, "Distance (mi)", "Within Drive Zone"]
+      : ["MSA Name", "State", "Prevailing Wage", "Surplus", "Distance (mi)", "Within Drive Zone"];
+    const rows = sorted.map((r) => {
+      if (showRentLayer) {
+        return [
+          `"${r.name}"`,
+          r.state,
+          r.fmr ?? "",
+          Math.round(r.distanceMiles),
+          r.withinDriveZone ? "Yes" : "No",
+        ];
+      }
+      return [
+        `"${r.name}"`,
+        r.state,
+        r.prevailingWage,
+        r.surplus,
+        Math.round(r.distanceMiles),
+        r.withinDriveZone ? "Yes" : "No",
+      ];
+    });
     const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `h1b-msas-${salary}.csv`;
+    a.download = showRentLayer ? `h1b-msas-rent-${brLabel.toLowerCase().replace(" ", "-")}-${salary}.csv` : `h1b-msas-${salary}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -59,8 +81,14 @@ export function ResultsList({ results, salary, showDriveZone }: Props) {
           <thead className="sticky top-0 bg-gray-50 z-10">
             <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
               <th className="px-3 py-2 font-semibold">Area</th>
-              <th className="px-3 py-2 font-semibold text-right">Wage</th>
-              <th className="px-3 py-2 font-semibold text-right">Surplus</th>
+              {showRentLayer ? (
+                <th className="px-3 py-2 font-semibold text-right">{brLabel} FMR</th>
+              ) : (
+                <>
+                  <th className="px-3 py-2 font-semibold text-right">Wage</th>
+                  <th className="px-3 py-2 font-semibold text-right">Surplus</th>
+                </>
+              )}
               {showDriveZone && (
                 <th className="px-3 py-2 font-semibold text-right">Dist</th>
               )}
@@ -76,15 +104,23 @@ export function ResultsList({ results, salary, showDriveZone }: Props) {
                   <div className="font-medium text-gray-800 leading-tight truncate">{r.name}</div>
                   <div className="text-xs text-gray-400">{r.state}</div>
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-gray-700 whitespace-nowrap">
-                  {formatCurrency(r.prevailingWage)}
-                </td>
-                <td
-                  className="px-3 py-2 text-right font-mono font-semibold whitespace-nowrap"
-                  style={{ color: getColor(r.surplus) }}
-                >
-                  {formatSurplus(r.surplus)}
-                </td>
+                {showRentLayer ? (
+                  <td className="px-3 py-2 text-right font-mono font-semibold text-gray-700 whitespace-nowrap">
+                    {r.fmr != null ? `${formatCurrency(r.fmr)}/mo` : "—"}
+                  </td>
+                ) : (
+                  <>
+                    <td className="px-3 py-2 text-right font-mono text-gray-700 whitespace-nowrap">
+                      {formatCurrency(r.prevailingWage)}
+                    </td>
+                    <td
+                      className="px-3 py-2 text-right font-mono font-semibold whitespace-nowrap"
+                      style={{ color: getColor(r.surplus) }}
+                    >
+                      {formatSurplus(r.surplus)}
+                    </td>
+                  </>
+                )}
                 {showDriveZone && (
                   <td className="px-3 py-2 text-right font-mono text-xs text-gray-500">
                     {Math.round(r.distanceMiles)}mi

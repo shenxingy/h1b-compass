@@ -3,18 +3,21 @@
 import { useEffect, useRef } from "react";
 import type L from "leaflet";
 import type { Circle, Map as LeafletMap, GeoJSON as LeafletGeoJSON } from "leaflet";
-import type { MsaGeoJSON, MsaWages, WagesData, WageLevel } from "@/lib/types";
-import { getColor, isWithinRadius, formatCurrency, formatSurplus } from "@/lib/utils";
+import type { BedroomCount, MsaGeoJSON, MsaWages, WagesData, WageLevel, RentData } from "@/lib/types";
+import { bedroomLabel, getColor, getFmr, getRentColor, isWithinRadius, formatCurrency, formatSurplus } from "@/lib/utils";
 import { MAP_CENTER, MAP_ZOOM } from "@/lib/constants";
 
 interface Props {
   geojson: MsaGeoJSON;
   wages: WagesData;
+  rent: RentData | null;
   salary: number;
   socCode: string;
   wageLevel: WageLevel;
   qualifyingOnly: boolean;
   showDriveZone: boolean;
+  showRentLayer: boolean;
+  bedroomCount: BedroomCount;
   originLat: number;
   originLon: number;
   radiusMiles: number;
@@ -23,11 +26,14 @@ interface Props {
 export function Map({
   geojson,
   wages,
+  rent,
   salary,
   socCode,
   wageLevel,
   qualifyingOnly,
   showDriveZone,
+  showRentLayer,
+  bedroomCount,
   originLat,
   originLon,
   radiusMiles,
@@ -94,7 +100,7 @@ export function Map({
     if (!mapRef.current) return;
     renderLayer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [geojson, wages, salary, socCode, wageLevel, qualifyingOnly, showDriveZone, originLat, originLon, radiusMiles]);
+  }, [geojson, wages, rent, salary, socCode, wageLevel, qualifyingOnly, showDriveZone, showRentLayer, bedroomCount, originLat, originLon, radiusMiles]);
 
   // Render/remove drive-zone circle
   useEffect(() => {
@@ -119,6 +125,26 @@ export function Map({
         const msaCode = feature.properties?.CBSAFP ?? "";
         const socWages: MsaWages | undefined = wages[msaCode]?.[socCode];
 
+        // Rent layer mode: color by selected-bedroom FMR
+        if (showRentLayer) {
+          const fmr = getFmr(rent?.[msaCode] ?? null, bedroomCount);
+          const inZone =
+            !showDriveZone ||
+            isWithinRadius(
+              feature as Parameters<typeof isWithinRadius>[0],
+              originLat,
+              originLon,
+              radiusMiles,
+            );
+          return {
+            fillColor: fmr != null ? getRentColor(fmr) : "#d1d5db",
+            fillOpacity: inZone ? 0.75 : 0.18,
+            weight: 0.8,
+            color: "#ffffff",
+          };
+        }
+
+        // Wage surplus mode (default)
         if (!socWages) {
           return { fillColor: "#d1d5db", weight: 0.5, color: "#9ca3af", fillOpacity: 0.3 };
         }
@@ -130,7 +156,7 @@ export function Map({
           return { fillColor: "transparent", weight: 0, fillOpacity: 0 };
         }
 
-        // Drive zone filter: dim MSAs outside radius (visual #2, independent of color)
+        // Drive zone filter: dim MSAs outside radius
         const inZone =
           !showDriveZone ||
           isWithinRadius(
@@ -151,19 +177,27 @@ export function Map({
         const msaCode = feature.properties?.CBSAFP ?? "";
         const name = feature.properties?.NAMELSAD ?? msaCode;
         const socWages: MsaWages | undefined = wages[msaCode]?.[socCode];
+        const fmr = showRentLayer ? getFmr(rent?.[msaCode] ?? null, bedroomCount) : undefined;
 
-        const tooltipContent = !socWages
-          ? `<strong>${name}</strong><br><em>No data</em>`
-          : (() => {
-              const prevailing = socWages[wageLevel];
-              const surplus = salary - prevailing;
-              return `<div style="font-size:13px;line-height:1.6">
-                <strong>${name}</strong><br>
-                Prevailing: <strong>${formatCurrency(prevailing)}</strong><br>
-                Your salary: ${formatCurrency(salary)}<br>
-                Surplus: <strong style="color:${getColor(surplus)}">${formatSurplus(surplus)}</strong>
-              </div>`;
-            })();
+        const tooltipContent = showRentLayer
+          ? (fmr != null
+              ? `<div style="font-size:13px;line-height:1.6">
+                  <strong>${name}</strong><br>
+                  ${bedroomLabel(bedroomCount)} Fair Market Rent: <strong>${formatCurrency(fmr)}</strong>/mo
+                </div>`
+              : `<strong>${name}</strong><br><em>No rent data</em>`)
+          : (!socWages
+              ? `<strong>${name}</strong><br><em>No data</em>`
+              : (() => {
+                  const prevailing = socWages[wageLevel];
+                  const surplus = salary - prevailing;
+                  return `<div style="font-size:13px;line-height:1.6">
+                    <strong>${name}</strong><br>
+                    Prevailing: <strong>${formatCurrency(prevailing)}</strong><br>
+                    Your salary: ${formatCurrency(salary)}<br>
+                    Surplus: <strong style="color:${getColor(surplus)}">${formatSurplus(surplus)}</strong>
+                  </div>`;
+                })());
 
         featureLayer.bindTooltip(tooltipContent, { sticky: true });
 
