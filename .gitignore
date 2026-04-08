@@ -47,5 +47,9 @@ __pycache__/
 # generated data — only isochrone excluded (too large / infrequently used)
 /public/data/isochrone_5h_sf.geojson
 
+# playwright
+/test-results/
+/playwright-report/
+
 # unused default Next.js assets
 /public/next.svg
