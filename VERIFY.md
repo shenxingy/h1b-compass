@@ -34,13 +34,13 @@
 - [x] **wages.json loads** — 530 MSAs, 393 M1 CBSAs have wage data; 542 M2 areas show "No data" (expected — data source)
 - [x] **msas.geojson loads** — 935 features (393 M1 Metro Divisions + 542 M2 Metro Statistical Areas)
 - [x] **rent.json loads** — 2353 CBSAs, all 5 bedroom types (fmr_0–fmr_4); 393 M1 geo codes align perfectly; 542 M2 have no FMR (expected)
-- [x] **SOC codes** — all 11 SOC codes present in wages.json
+- [x] **SOC codes** — all 12 SOC codes present in wages.json
 - [x] **bedroom count selector** — rent layer shows 0BR (Studio), 1BR, 2BR, 3BR, 4BR options; map + table + CSV all reflect selected bedroom type
-- [x] **major MSA spot checks** (2026-03-31):
-  - SF (41860): wage L2=$169,930, Studio=$2,485, 1BR=$2,977, 2BR=$3,604, 3BR=$4,604/mo
-  - LA (31080): wage L2=$148,400, 2BR FMR=$3,236/mo
-  - DC (47900): wage L2=$147,420, Studio=$1,953, 1BR=$2,015, 2BR=$2,246, 3BR=$2,835/mo
-  - Chicago (16980): 2BR FMR=$2,050/mo
+- [x] **major MSA spot checks** (2026-04-07, default SOC 15-1252 Software Developer):
+  - SF (41860): wage L2=$161,637, Studio=$2,485, 1BR=$2,977, 2BR=$3,604, 3BR=$4,604/mo
+  - LA (31080): wage L2=$129,667, 2BR FMR=$3,236/mo
+  - DC (47900): wage L2=$126,090, Studio=$1,953, 1BR=$2,015, 2BR=$2,246, 3BR=$2,835/mo
+  - Chicago (16980): wage L2=$108,077, 2BR FMR=$2,050/mo
 - [x] **surplus color** — green when salary > prevailing, red when salary < prevailing
 - [x] **rent color** — green = low FMR (affordable), red = high FMR (expensive)
 - [x] **drive zone filter** — haversine distance + dimming (not hiding)
@@ -71,4 +71,4 @@
 
 ---
 
-_Updated: 2026-03-31_
+_Updated: 2026-04-07_
