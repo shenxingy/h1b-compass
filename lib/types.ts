@@ -70,5 +70,7 @@ export interface MsaResult {
   surplus: number;
   distanceMiles: number;
   withinDriveZone: boolean;
-  fmr?: number; // Fair Market Rent for selected bedroom type when rent layer is active
+  fmr?: number;           // Fair Market Rent for selected bedroom type (always computed when available)
+  lotteryLevel?: WageLevel; // highest DOL wage level where salary >= prevailing wage (USCIS FY2027 weighting)
+  netSurplus?: number;    // surplus - fmr*12 (annual wage surplus after rent)
 }

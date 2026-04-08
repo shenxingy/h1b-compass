@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import type L from "leaflet";
 import type { Circle, Map as LeafletMap, GeoJSON as LeafletGeoJSON } from "leaflet";
 import type { BedroomCount, MsaGeoJSON, MsaWages, WagesData, WageLevel, RentData } from "@/lib/types";
-import { bedroomLabel, getColor, getFmr, getRentColor, isWithinRadius, formatCurrency, formatSurplus } from "@/lib/utils";
+import { bedroomLabel, getColor, getFmr, getRentColor, isWithinRadius, formatCurrency, formatSurplus, getCentroid } from "@/lib/utils";
 import { MAP_CENTER, MAP_ZOOM } from "@/lib/constants";
 
 interface Props {
@@ -21,6 +21,7 @@ interface Props {
   originLat: number;
   originLon: number;
   radiusMiles: number;
+  focusMsaCode?: string | null;
 }
 
 export function Map({
@@ -37,12 +38,15 @@ export function Map({
   originLat,
   originLon,
   radiusMiles,
+  focusMsaCode,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const layerRef = useRef<LeafletGeoJSON | null>(null);
   const circleLayerRef = useRef<Circle | null>(null);
   const activeFeatureRef = useRef<L.Path | null>(null);
+  // msaCode → feature layer, populated in renderLayer's onEachFeature
+  const featureLayersRef = useRef<Record<string, L.Path>>({});
 
   // Initialize map once, destroy on unmount
   useEffect(() => {
@@ -109,6 +113,22 @@ export function Map({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showDriveZone, originLat, originLon, radiusMiles]);
 
+  // Pan + briefly highlight when user selects an MSA from search
+  useEffect(() => {
+    if (!focusMsaCode || !mapRef.current) return;
+    const feature = geojson.features.find((f) => f.properties.CBSAFP === focusMsaCode);
+    if (!feature) return;
+    const centroid = getCentroid(feature);
+    if (!centroid) return;
+    mapRef.current.setView(centroid, 7, { animate: true });
+    const fl = featureLayersRef.current[focusMsaCode];
+    if (!fl) return;
+    fl.setStyle({ weight: 3, color: "#2563eb" });
+    const t = setTimeout(() => { layerRef.current?.resetStyle(fl); }, 2000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusMsaCode]);
+
   async function renderLayer() {
     if (!mapRef.current) return;
     const L = (await import("leaflet")).default;
@@ -118,6 +138,7 @@ export function Map({
       layerRef.current = null;
     }
     activeFeatureRef.current = null;
+    featureLayersRef.current = {};
 
     const layer = L.geoJSON(geojson as Parameters<typeof L.geoJSON>[0], {
       style: (feature) => {
@@ -175,6 +196,7 @@ export function Map({
       },
       onEachFeature: (feature, featureLayer) => {
         const msaCode = feature.properties?.CBSAFP ?? "";
+        featureLayersRef.current[msaCode] = featureLayer as L.Path;
         const name = feature.properties?.NAMELSAD ?? msaCode;
         const socWages: MsaWages | undefined = wages[msaCode]?.[socCode];
         const fmr = showRentLayer ? getFmr(rent?.[msaCode] ?? null, bedroomCount) : undefined;

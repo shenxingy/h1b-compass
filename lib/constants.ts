@@ -26,6 +26,11 @@ export const WAGE_LEVEL_LABELS: Record<WageLevel, string> = {
   L4: "L4 (~67th pct)",
 };
 
+/** USCIS wage-weighted H1B lottery multipliers (effective FY2027, Feb 2026 rule) */
+export const LOTTERY_WEIGHTS: Record<WageLevel, number> = {
+  L1: 1, L2: 2, L3: 3, L4: 4,
+};
+
 // ─── Origins ─────────────────────────────────────────────────────────────────
 
 /** Preset origin cities [lat, lon] */

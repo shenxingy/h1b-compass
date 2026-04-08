@@ -2,13 +2,22 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Position } from "geojson";
 import { COLOR_STOPS } from "./constants";
-import type { MsaFeature, MsaRent, BedroomCount } from "./types";
+import type { MsaFeature, MsaRent, MsaWages, BedroomCount, WageLevel } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 // ─── Wage / Surplus ──────────────────────────────────────────────────────────
+
+/** Returns the highest DOL wage level where salary >= prevailing wage, or null if none qualify. */
+export function getLotteryLevel(wages: MsaWages, salary: number): WageLevel | null {
+  if (salary >= wages.L4) return "L4";
+  if (salary >= wages.L3) return "L3";
+  if (salary >= wages.L2) return "L2";
+  if (salary >= wages.L1) return "L1";
+  return null;
+}
 
 export function getColor(surplus: number): string {
   for (const stop of COLOR_STOPS) {
