@@ -61,6 +61,25 @@
 
 - [x] **h1b-compass.internal.scam.ai resolves** — Next.js Turbopack cross-origin blocking resolved via `allowedDevOrigins` in `next.config.ts` (prevents "Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr")
 
+## New Features (2026-04-08)
+
+- [x] **search box present** — SearchBox renders in global header when geojson is loaded
+- [x] **search filters MSA list** — input with ≥2 chars shows filtered dropdown (z-[500] clears Leaflet overlayPane at 400)
+- [x] **search keyboard nav** — ArrowUp/Down/Enter/Escape handled; outside click closes
+- [x] **search → map pan** — onSelect sets `focusMsaCode`, Map `useEffect` calls `setView(centroid, 7)` + 2s blue border highlight
+- [x] **search → results scroll** — ResultsList `scrollIntoView` on `id="msa-row-{msaCode}"` row; focused row highlighted blue-50
+- [x] **lottery badge data** — `getLotteryLevel(wages, salary)` returns highest level where salary ≥ prevailing wage; 3 MSAs return null at $110K (salary below L1), 66 return L1, 279 L2, 163 L3, 19 L4 (validated against wages.json)
+- [x] **lottery badge display** — colored pill in Area column: 4x=green, 3x=blue, 2x=amber, 1x=gray; absent when lotteryLevel undefined
+- [x] **lottery header hint** — header shows dominant lottery level for qualifying MSAs (e.g. "2x lottery" at default $110K / L2 / 15-1252)
+- [x] **net surplus computed** — `netSurplus = surplus − fmr×12` always computed when rent data available; fmr always included in MsaResult (not gated by showRentLayer)
+- [x] **Net/yr column in rent mode** — `hasNetSurplus` guard: column only appears when `showRentLayer=true` AND at least one result has netSurplus; colored by `getColor(netSurplus)`
+- [x] **rent mode sort** — sorts by netSurplus descending when data available (livability-first); fallback to FMR desc
+- [x] **Net/yr in CSV export** — CSV headers include "Net Surplus/yr" in rent mode
+- [x] **share button** — "Share" button in header; `navigator.clipboard.writeText(window.location.href)`; 2s "Copied!" + checkmark feedback
+- [x] **share button URL** — nuqs encodes all filter state into URL; copied link fully restores filter state on open
+
+---
+
 ## ⚠ Known Limitations
 
 - [ ] FBI UCR crime data layer — not yet integrated (P1)
@@ -71,4 +90,4 @@
 
 ---
 
-_Updated: 2026-04-07_
+_Updated: 2026-04-08_
