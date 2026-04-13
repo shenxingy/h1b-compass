@@ -53,7 +53,7 @@
 - [x] **empty rent data** — same 542 M2 MSAs show "No rent data" in rent mode (expected)
 - [x] **large salary (>$300K)** — slider max 300K, number type prevents overflow
 - [x] **zero results** — "No areas match current filters" message shown
-- [x] **rent toggle + qualifying filter** — rent mode bypasses qualifying filter (independent views)
+- [x] **rent toggle + qualifying filter** — rent mode bypasses qualifying filter (independent views); map bypasses via early return in `showRentLayer` branch; ResultsList bypasses via `!filters.showRentLayer` guard in `displayResults`
 
 ---
 
@@ -68,7 +68,7 @@
 - [x] **search keyboard nav** — ArrowUp/Down/Enter/Escape handled; outside click closes
 - [x] **search → map pan** — onSelect sets `focusMsaCode`, Map `useEffect` calls `setView(centroid, 7)` + 2s blue border highlight
 - [x] **search → results scroll** — ResultsList `scrollIntoView` on `id="msa-row-{msaCode}"` row; focused row highlighted blue-50
-- [x] **lottery badge data** — `getLotteryLevel(wages, salary)` returns highest level where salary ≥ prevailing wage; 3 MSAs return null at $110K (salary below L1), 66 return L1, 279 L2, 163 L3, 19 L4 (validated against wages.json)
+- [x] **lottery badge data** — `getLotteryLevel(wages, salary)` returns highest level where salary ≥ prevailing wage; 3 MSAs return null at $110K (salary below L1), 53 return L1, 213 L2, 110 L3, 14 L4 (validated against wages.json)
 - [x] **lottery badge display** — colored pill in Area column: 4x=green, 3x=blue, 2x=amber, 1x=gray; absent when lotteryLevel undefined
 - [x] **lottery header hint** — header shows dominant lottery level for qualifying MSAs (e.g. "2x lottery" at default $110K / L2 / 15-1252)
 - [x] **net surplus computed** — `netSurplus = surplus − fmr×12` always computed when rent data available; fmr always included in MsaResult (not gated by showRentLayer)
@@ -90,4 +90,4 @@
 
 ---
 
-_Updated: 2026-04-08_
+_Updated: 2026-04-12 (review pass)_

@@ -138,11 +138,11 @@ export default function HomePage() {
   // Apply stacked filters for the results list
   const displayResults = useMemo(() => {
     return allResults.filter((r) => {
-      if (filters.qualifyingOnly && r.surplus < 0) return false;
+      if (filters.qualifyingOnly && !filters.showRentLayer && r.surplus < 0) return false;
       if (filters.showDriveZone && !r.withinDriveZone) return false;
       return true;
     });
-  }, [allResults, filters.qualifyingOnly, filters.showDriveZone]);
+  }, [allResults, filters.qualifyingOnly, filters.showRentLayer, filters.showDriveZone]);
 
   const qualifyingCount = allResults.filter((r) => r.surplus >= 0).length;
 
