@@ -13,22 +13,109 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const BASE_URL = "https://h1b-compass.vercel.app";
+
 export const metadata: Metadata = {
-  title: "H1B Compass — Find Your Best Worksite",
+  metadataBase: new URL(BASE_URL),
+  title: "H1B Prevailing Wage Map — Find Your Best Worksite | H1B Compass",
   description:
-    "Visualize DOL prevailing wages across US metro areas to find the optimal H1B worksite. Filter by job category, wage level, and drive distance.",
+    "Free interactive map of DOL prevailing wages across 380+ US metro areas. Compare H1B wage levels, calculate surplus, and find the optimal worksite for your salary.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "H1B Compass — Find Your Best Worksite",
+    title: "H1B Prevailing Wage Map — Find Your Best Worksite",
     description:
-      "Visualize DOL prevailing wages across US metro areas. Find the optimal H1B worksite for your salary.",
+      "Free interactive map of DOL prevailing wages across 380+ US metro areas. Compare wage levels, calculate surplus, and find the best H1B worksite.",
     type: "website",
+    url: BASE_URL,
+    siteName: "H1B Compass",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "H1B Prevailing Wage Map | H1B Compass",
+    description:
+      "Compare DOL prevailing wages across 380+ US metro areas. Find the best H1B worksite for your salary.",
   },
   keywords: [
     "H1B prevailing wage",
+    "H1B prevailing wage map",
     "H1B worksite",
-    "DOL prevailing wage map",
-    "H1B visa",
+    "DOL prevailing wage lookup",
+    "H1B visa wage level",
     "BLS OEWS wages",
+    "H1B wage surplus calculator",
+    "prevailing wage by city",
+  ],
+  authors: [{ name: "H1B Compass" }],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  other: {
+    "google-site-verification": "",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      name: "H1B Compass",
+      url: BASE_URL,
+      description:
+        "Free interactive map of DOL prevailing wages across 380+ US metro areas. Helps H1B visa applicants and sponsoring employers find optimal worksites.",
+      applicationCategory: "UtilityApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Interactive choropleth wage map",
+        "12 tech job categories (SOC codes)",
+        "4 wage levels (L1-L4)",
+        "Drive zone radius filter",
+        "HUD Fair Market Rent overlay",
+        "H1B lottery multiplier display",
+        "CSV export",
+      ],
+    },
+    {
+      "@type": "Dataset",
+      name: "DOL OFLC Prevailing Wages by Metro Area",
+      description:
+        "Prevailing wage data from the Department of Labor Office of Foreign Labor Certification, covering 380+ US Metropolitan Statistical Areas across 12 tech occupation codes and 4 wage levels.",
+      url: BASE_URL,
+      license: "https://www.usa.gov/government-copyright",
+      temporalCoverage: "2025-07/2026-06",
+      spatialCoverage: {
+        "@type": "Place",
+        name: "United States",
+      },
+      creator: {
+        "@type": "GovernmentOrganization",
+        name: "U.S. Department of Labor",
+        url: "https://www.dol.gov",
+      },
+      distribution: {
+        "@type": "DataDownload",
+        encodingFormat: "text/csv",
+        name: "CSV Export",
+      },
+    },
+    {
+      "@type": "WebSite",
+      name: "H1B Compass",
+      url: BASE_URL,
+    },
   ],
 };
 
@@ -39,6 +126,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NuqsAdapter>{children}</NuqsAdapter>
       </body>

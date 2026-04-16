@@ -1,0 +1,28 @@
+# H1B Compass
+> Free interactive tool for exploring DOL prevailing wages across 380+ US metro areas (MSAs). Helps H1B visa applicants and sponsoring employers find optimal worksites by comparing salary against prevailing wage requirements.
+
+## Features
+- [Wage Map](https://h1b-compass.vercel.app/): Interactive choropleth map showing wage surplus/deficit by metro area
+- [Worksite Guide](https://h1b-compass.vercel.app/guide): How to choose the best H1B worksite
+- [About & Methodology](https://h1b-compass.vercel.app/about): Data sources and methodology
+
+## Capabilities
+- Filter by 12 tech job categories (SOC codes) including Software Developer, Data Scientist, DevOps/SRE
+- Compare 4 wage levels: L1 (17th percentile) through L4 (67th percentile)
+- Drive zone radius filter from 14 major US cities
+- HUD FY2026 Fair Market Rent overlay with net surplus calculation
+- H1B lottery multiplier display (FY2027 wage-weighted system)
+- CSV export of filtered results
+- Shareable URL with all filter state preserved
+
+## Key Facts
+- H1B visa requires the employer to pay at or above the prevailing wage for the worksite location
+- Prevailing wages vary significantly by metro area — the same job can have a $40K+ difference between cities
+- USCIS FY2027 introduces wage-weighted lottery: Level 4 wages get 4x selection weight vs Level 1
+- Data covers 380+ Metropolitan Statistical Areas across all 50 states
+
+## Data Sources
+- DOL OFLC Prevailing Wages (July 2025 — June 2026)
+- BLS Occupational Employment and Wage Statistics (OEWS)
+- HUD FY2026 Fair Market Rents
+- USCIS FY2027 wage-weighted lottery rule (February 2026)
