@@ -74,3 +74,8 @@ label-activation synthesized click (which would double-fire onChange).
 - Don't use `h-screen` — use `h-dvh` to avoid iOS Safari address bar issues
 - Don't make the drive zone circle `interactive: true`
 - Don't commit `public/data/` files (wages.json, msas.geojson) — they are large; regenerate with scripts
+
+## Auto-Promoted Rules
+<!-- Promoted from .claude/corrections/rules.md via /audit. -->
+
+- **Third-party library error attribution** `[auto-promoted 2026-04-19 from 2026-03-31 console-error-attribution]`: When a console error stack frame points to our component (e.g. `slider.tsx:48`) but our code at that location contains no problematic pattern (no `<script>` tags, no `innerHTML`, etc.), the bug is in the third-party library we call — not in our usage. Investigate the library's source. Example: Base UI `SliderPrimitive.Thumb` internally uses `innerHTML` for a script tag, triggering React 19's "Encountered a script tag" warning at our JSX call site.
