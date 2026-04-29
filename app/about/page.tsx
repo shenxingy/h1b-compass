@@ -14,9 +14,32 @@ export const metadata: Metadata = {
   },
 };
 
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://h1b-compass.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "About & Methodology",
+      item: "https://h1b-compass.vercel.app/about",
+    },
+  ],
+};
+
 export default function AboutPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="min-h-dvh bg-white">
         <header className="border-b border-gray-200 px-6 py-4">
           <div className="max-w-3xl mx-auto flex items-center gap-3">

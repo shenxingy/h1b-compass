@@ -57,9 +57,6 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
-  other: {
-    "google-site-verification": "",
-  },
 };
 
 const jsonLd = {
@@ -115,6 +112,59 @@ const jsonLd = {
       "@type": "WebSite",
       name: "H1B Compass",
       url: BASE_URL,
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What data does H1B Compass use?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Prevailing wages come from the DOL Office of Foreign Labor Certification (OFLC) prevailing wage dataset for July 2025 through June 2026, which is derived from BLS OEWS survey data. Rent data comes from HUD FY2026 Fair Market Rents. Metro area boundaries are US Census Bureau CBSA shapefiles.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How often is the data updated?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "The DOL publishes new prevailing wage data annually, typically effective July 1. H1B Compass updates its dataset each year to reflect the latest wage determinations. The current dataset covers the July 2025 to June 2026 prevailing wage period.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What is the wage surplus?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Wage surplus is the difference between your salary and the prevailing wage for your job category and wage level in a given metro area. A positive surplus means your salary exceeds the prevailing wage (qualifying for H1B). A negative surplus means the prevailing wage is higher than your salary, and the employer would need to increase compensation to file at that location.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What is the FY2027 wage-weighted lottery?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Starting with FY2027 H1B cap season, USCIS assigns lottery selection weights based on the wage level of the petition. Level 1 petitions receive a 1x base weight, Level 2 receives 2x, Level 3 receives 3x, and Level 4 receives 4x. This means a petition filed at Level 4 is four times more likely to be selected than one filed at Level 1.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I change my H1B worksite after filing?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes, but it requires filing an amended H1B petition with USCIS if the new worksite is in a different MSA with a different prevailing wage. The employer must also file a new Labor Condition Application (LCA) for the new location.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is this tool free?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. H1B Compass is a free, open-source tool. The source code is available on GitHub. No account or payment is required.",
+          },
+        },
+      ],
     },
   ],
 };

@@ -6,13 +6,17 @@ import { Footer } from "@/components/Footer";
 export default function Page() {
   return (
     <>
+      <h1 className="sr-only">
+        H1B Prevailing Wage Map by US Metro Area
+      </h1>
+
       <Suspense fallback={<div className="flex items-center justify-center h-dvh text-gray-400">Loading...</div>}>
         <HomePage />
       </Suspense>
 
       <noscript>
         <div className="max-w-3xl mx-auto px-6 py-12 text-gray-700">
-          <h1 className="text-2xl font-bold mb-4">H1B Compass — H1B Prevailing Wage Map</h1>
+          <h2 className="text-2xl font-bold mb-4">H1B Compass — H1B Prevailing Wage Map</h2>
           <p className="mb-4">
             H1B Compass is a free interactive tool for exploring DOL prevailing wages
             across 380+ US metro areas. It helps H1B visa applicants and sponsoring
