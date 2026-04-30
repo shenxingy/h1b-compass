@@ -11,6 +11,14 @@ export const metadata: Metadata = {
     title: "How to Choose Your H1B Worksite",
     description:
       "Strategic guide to H1B worksite selection: prevailing wages, lottery odds, cost of living, and the FY2027 wage-weighted system.",
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "How to Choose Your H1B Worksite",
+    description:
+      "Strategic guide to H1B worksite selection: prevailing wages, lottery odds, cost of living, and the FY2027 wage-weighted system.",
+    images: ["/og.png"],
   },
 };
 

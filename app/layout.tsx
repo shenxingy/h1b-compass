@@ -31,12 +31,21 @@ export const metadata: Metadata = {
     url: BASE_URL,
     siteName: "H1B Compass",
     locale: "en_US",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "H1B Compass — interactive prevailing wage map covering 380+ US metro areas",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "H1B Prevailing Wage Map | H1B Compass",
     description:
       "Compare DOL prevailing wages across 380+ US metro areas. Find the best H1B worksite for your salary.",
+    images: ["/og.png"],
   },
   keywords: [
     "H1B prevailing wage",

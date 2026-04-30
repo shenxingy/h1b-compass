@@ -11,6 +11,14 @@ export const metadata: Metadata = {
     title: "About & Methodology — H1B Compass",
     description:
       "How H1B Compass works: DOL OFLC data pipeline, wage level methodology, and FY2027 lottery weight calculations.",
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About & Methodology — H1B Compass",
+    description:
+      "How H1B Compass works: DOL OFLC data pipeline, wage level methodology, and FY2027 lottery weight calculations.",
+    images: ["/og.png"],
   },
 };
 

@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="surplus" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0.65"/>
+    </linearGradient>
+    <linearGradient id="deficit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#f87171" stop-opacity="0.65"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.7" cy="0.5" r="0.6">
+      <stop offset="0%" stop-color="#1e3a5f" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Faint grid lines for data-tool feel -->
+  <g stroke="#1e293b" stroke-width="1" opacity="0.5">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+  </g>
+
+  <!-- Abstract choropleth polygons — stylized US silhouette in metro tiles -->
+  <g transform="translate(640, 180)" opacity="0.92">
+    <!-- West Coast (high cost, deficit) -->
+    <polygon points="0,40 60,30 75,80 50,120 5,110" fill="#ef4444" opacity="0.78"/>
+    <polygon points="5,110 50,120 60,170 25,180 0,150" fill="#f87171" opacity="0.72"/>
+    <polygon points="0,150 25,180 30,220 5,225 -10,200" fill="#fb7185" opacity="0.65"/>
+
+    <!-- Mountain West -->
+    <polygon points="60,30 130,20 150,70 110,90 75,80" fill="#fcd34d" opacity="0.55"/>
+    <polygon points="75,80 110,90 125,140 80,150 50,120" fill="#fde68a" opacity="0.5"/>
+    <polygon points="80,150 125,140 140,190 95,200 60,170" fill="#a7f3d0" opacity="0.6"/>
+
+    <!-- Plains / Midwest (favorable surplus) -->
+    <polygon points="130,20 220,15 240,65 200,80 150,70" fill="#10b981" opacity="0.78"/>
+    <polygon points="150,70 200,80 215,130 175,140 125,140" fill="#34d399" opacity="0.82"/>
+    <polygon points="125,140 175,140 195,190 150,200 140,190" fill="#10b981" opacity="0.7"/>
+
+    <!-- South -->
+    <polygon points="195,190 250,185 265,235 215,245 150,200" fill="#34d399" opacity="0.68"/>
+    <polygon points="215,245 265,235 290,275 240,290 175,275" fill="#6ee7b7" opacity="0.6"/>
+
+    <!-- Northeast (mixed) -->
+    <polygon points="220,15 290,10 305,55 270,70 240,65" fill="#fcd34d" opacity="0.6"/>
+    <polygon points="240,65 270,70 290,115 245,125 215,130" fill="#f59e0b" opacity="0.55"/>
+    <polygon points="290,115 305,55 340,60 350,110 310,130" fill="#ef4444" opacity="0.65"/>
+    <polygon points="290,115 310,130 320,170 270,170 245,125" fill="#f87171" opacity="0.55"/>
+
+    <!-- Texas / Southwest -->
+    <polygon points="125,140 80,150 95,200 140,190" fill="#34d399" opacity="0.55"/>
+    <polygon points="95,200 140,190 150,200 175,275 130,280 110,240" fill="#10b981" opacity="0.62"/>
+
+    <!-- Florida tail -->
+    <polygon points="265,235 290,275 310,310 285,320 260,290" fill="#fbbf24" opacity="0.55"/>
+  </g>
+
+  <!-- Headline -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif">
+    <text x="80" y="240" font-size="72" font-weight="800" fill="#ffffff" letter-spacing="-2">
+      H1B Prevailing
+    </text>
+    <text x="80" y="320" font-size="72" font-weight="800" fill="#ffffff" letter-spacing="-2">
+      Wage Map
+    </text>
+
+    <!-- Subhead -->
+    <text x="80" y="380" font-size="26" font-weight="500" fill="#94a3b8" letter-spacing="-0.3">
+      Compare wages across 380+ US metro areas
+    </text>
+
+    <!-- Feature pills -->
+    <g font-size="16" font-weight="600">
+      <!-- Pill 1 -->
+      <rect x="80" y="420" width="178" height="38" rx="19" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <circle cx="100" cy="439" r="4" fill="#10b981"/>
+      <text x="114" y="444" fill="#cbd5e1">12 SOC categories</text>
+
+      <!-- Pill 2 -->
+      <rect x="270" y="420" width="155" height="38" rx="19" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <circle cx="290" cy="439" r="4" fill="#34d399"/>
+      <text x="304" y="444" fill="#cbd5e1">L1–L4 wage tiers</text>
+
+      <!-- Pill 3 -->
+      <rect x="437" y="420" width="180" height="38" rx="19" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <circle cx="457" cy="439" r="4" fill="#fbbf24"/>
+      <text x="471" y="444" fill="#cbd5e1">FY2027 lottery odds</text>
+    </g>
+  </g>
+
+  <!-- Brand mark (top-left compass icon + wordmark) -->
+  <g transform="translate(80, 70)">
+    <circle cx="22" cy="22" r="22" fill="#0f172a" stroke="#334155" stroke-width="1.4"/>
+    <circle cx="22" cy="22" r="18" fill="none" stroke="#1e3a5f" stroke-width="1"/>
+    <!-- N needle red -->
+    <path d="M22 5 L26 21.5 L18 21.5 Z" fill="#ef4444"/>
+    <!-- S needle slate -->
+    <path d="M22 39 L26 22.5 L18 22.5 Z" fill="#475569"/>
+    <!-- E/W slate -->
+    <path d="M39 22 L22.5 18 L22.5 26 Z" fill="#475569"/>
+    <path d="M5 22 L21.5 18 L21.5 26 Z" fill="#475569"/>
+    <circle cx="22" cy="22" r="2.4" fill="#0f172a"/>
+    <circle cx="22" cy="22" r="1.2" fill="#f87171"/>
+
+    <text x="56" y="29" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="700" fill="#ffffff" letter-spacing="-0.4">
+      H1B Compass
+    </text>
+  </g>
+
+  <!-- Bottom-right URL / source line -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif">
+    <text x="1120" y="585" font-size="16" font-weight="500" fill="#64748b" text-anchor="end">
+      Data: DOL OFLC · BLS OEWS · HUD FMR
+    </text>
+    <text x="1120" y="560" font-size="14" font-weight="500" fill="#475569" text-anchor="end">
+      h1b-compass.vercel.app
+    </text>
+  </g>
+
+  <!-- Legend strip (top-right) -->
+  <g transform="translate(940, 90)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600">
+    <text x="0" y="0" fill="#94a3b8">SURPLUS</text>
+    <rect x="0" y="10" width="180" height="10" rx="2" fill="url(#surplus)"/>
+    <rect x="0" y="10" width="180" height="10" rx="2" fill="url(#deficit)" opacity="0"/>
+    <linearGradient id="legend" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="50%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <rect x="0" y="10" width="180" height="10" rx="2" fill="url(#legend)"/>
+    <text x="0" y="38" fill="#64748b" font-size="11" font-weight="500">−$40K</text>
+    <text x="180" y="38" fill="#64748b" font-size="11" font-weight="500" text-anchor="end">+$40K</text>
+  </g>
+</svg>
